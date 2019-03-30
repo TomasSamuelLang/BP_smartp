@@ -5662,7 +5662,7 @@ a.badge-dark:focus, a.badge-dark.focus {
 }
 
 button.close {
-  padding: 0;
+  padding-top: 15px;
   background-color: transparent;
   border: 0;
   -webkit-appearance: none;

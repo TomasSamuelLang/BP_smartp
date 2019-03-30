@@ -1,19 +1,19 @@
 from django import forms
-from .models import User
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 
-class RegisterForm(forms.ModelForm):
-    login = forms.EmailField(label="Type in your email ", max_length=100)
-    password = forms.CharField(widget=forms.PasswordInput(), label="Type in your password ", max_length=100)
-    passwordVerification = forms.CharField(widget=forms.PasswordInput(), label="Repeat password ", max_length=100)
+class RegisterForm(UserCreationForm):
+    # username = forms.CharField(label="Type in your username ", max_length=100)
+    email = forms.EmailField(label="Type in your email ", max_length=100)
 
     class Meta:
-        fields = ('login', 'password')
+        fields = ('username', 'email', 'password1', 'password2')
         model = User
 
 
 class LoginForm(forms.ModelForm):
-    login = forms.EmailField(label="Type in your email", max_length=100)
+    username = forms.CharField(label="Type in your username", max_length=100)
     password = forms.CharField(widget=forms.PasswordInput(), label="Type in password", max_length=100)
 
     class Meta:

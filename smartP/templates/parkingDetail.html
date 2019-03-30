@@ -1,0 +1,166 @@
+{% load static %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <!-- Nav tabs -->
+      <div class="card">
+        <div class="container">
+            <div class="col-md-12">
+              <div class="row">
+                <div class="col-9" style="margin-top: 5px;">
+                  <h3>Detail information</h3>
+                  <hr class="style1">
+                </div>
+                <div class="col-2">
+                  <div style="margin-top: 15px;">
+                    <h6>
+                      {{details.town.name}}, {{details.town.country.name}}
+                    </h6>
+                  </div>
+                </div>
+                <div class="col-1">
+                  <button type="button" class="close" aria-label="Close" onclick="hideDetail()">
+                    &times;
+                  </button>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-5">
+                  <div class="row">
+                     <div class="card mb-4 box-shadow">
+                      {% if details.photo_set.all.first.photo == None %}
+                        <img class="card-img-top imag" src="{% static 'img/park/NoImage.png' %}" alt="Parking lot img">
+                      {% else %}
+                        <img class="card-img-top imag" src="{% static details.photo_set.all.first.photo %}" alt="Parking lot img">
+                      {% endif %}
+                     </div>
+                  </div>
+                  <div class="row">
+                    <!--<div class="col-5">-->
+                      <!--<p>Parking lot:</p>-->
+                    <!--</div>-->
+                    <!--<div class="col-7">-->
+                      <!--<p>{{details.name}}</p>-->
+                    <!--</div>-->
+                  <!--</div>-->
+                  <!--<div class="row">-->
+                    <!--<div class="col-5">-->
+                      <!--<p>Address:</p>-->
+                    <!--</div>-->
+                    <!--<div class="col-7">-->
+                      <!--<p>{{details.address}}</p>-->
+                    <!--</div>-->
+                  <!--</div>-->
+                  <!--<div class="row">-->
+                    <!--<div class="col-5">-->
+                      <!--<p>Capacity:</p>-->
+                    <!--</div>-->
+                    <!--<div class="col-7">-->
+                      <!--<p>{{details.capacity}}</p>-->
+                    <!--</div>-->
+                  <!--</div>-->
+                  <!--<div class="row">-->
+                    <!--<div class="col-5">-->
+                      <!--<p>Occupied slots:</p>-->
+                    <!--</div>-->
+                    <!--<div class="col-7">-->
+                      <!--<p>{{details.actualparkedcars}}</p>-->
+                    <!--</div>-->
+                    <table class="table table-borderless">
+                      <thead>
+                        <tr>
+                          <th scope="col">Parking lot:</th>
+                          <th scope="col">{{details.name}}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row">Address:</th>
+                          <th scope="row">{{details.address}}</th>
+                        </tr>
+                        <tr>
+                          <th scope="row">Capacity:</th>
+                          <td>{{details.capacity}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Occupied slots:</th>
+                          <td>{{details.actualparkedcars}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-7">
+                  <div class="row">
+                    <canvas id="bar-chart-hour" class="chart-container"></canvas>
+                  </div>
+                  <div class="row">
+                    <canvas id="bar-chart-day" class="chart-container"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  lbls = {{labels|safe}};
+  data = {{peakhours|safe}};
+  bg = new Array(24).fill("#DC143C");
+  new Chart(document.getElementById("bar-chart-hour"), {
+			type: 'bar',
+			data: {
+			  labels: lbls,
+			  datasets: [
+				{
+				    backgroundColor: bg,
+				    label: "Average occupied slots (hourly)",
+                    data: data,
+				}
+			  ]
+			},
+			options: {
+			    responsive: true,
+                maintainAspectRatio: false,
+			  legend: { display: false },
+			  title: {
+				display: true,
+				text: 'Peak hours'
+			  }
+			}
+  });
+
+  lbl = {{labelDay|safe}};
+  datas = {{peakdays|safe}};
+  bg = new Array(7).fill("#3e95cd");
+  new Chart(document.getElementById("bar-chart-day"), {
+			type: 'bar',
+			data: {
+			  labels: lbl,
+			  datasets: [
+				{
+				    backgroundColor: bg,
+				    label: "Average occupied slots (daily)",
+                    data: datas,
+				}
+			  ]
+			},
+			options: {
+			    responsive: true,
+                maintainAspectRatio: false,
+			  legend: { display: false },
+                scales: {
+			      yAxes: [{
+			          stacked: true
+                  }]
+                },
+			  title: {
+				display: true,
+				text: 'Peak days'
+			  }
+			}
+  });
+</script>

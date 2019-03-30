@@ -2,9 +2,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Labs - Design Studio</title>
+	<title>SmartP</title>
 	<meta charset="UTF-8">
-	<meta name="description" content="Labs - Design Studio">
+	<meta name="description" content="SmartP">
 	<meta name="keywords" content="lab, onepage, creative, html">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- Favicon -->
@@ -25,12 +25,10 @@
 	<!--<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>-->
 	<!--<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
-
-
-	<!--[if lt IE 9]>
-	  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-	  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-	<![endif]-->
+	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
 
 </head>
 <body>
@@ -46,7 +44,7 @@
 	<!-- Header section -->
 	<header class="header-section">
 		<div class="logo">
-			<img src="{% static 'img/logo.png' %}" alt=""><!-- Logo -->
+			<img src="{% static 'img/logosmall.png' %}" alt=""><!-- Logo -->
 		</div>
 		<!-- Navigation -->
 		<div class="responsive"><i class="fa fa-bars"></i></div>
@@ -55,8 +53,12 @@
 				<li class="active"><a href="{% url 'home' %}">Home</a></li>
 				<li><a href="{% url 'about' %}">About Us</a></li>
 				<li><a href="{% url 'contact' %}">Contact</a></li>
-				<li><a href="{% url 'register' %}">Register</a></li>
-				<li><a href="{% url 'login' %}">Login</a></li>
+				{% if user.is_authenticated %}
+					<li><a href="{% url 'logout' %}">Log out</a></li>
+				{% else %}
+					<li><a href="{% url 'register' %}">Register</a></li>
+					<li><a href="{% url 'login' %}">Log in</a></li>
+				{% endif %}
 			</ul>
 		</nav>
 	</header>
@@ -70,11 +72,14 @@
         	<div class="container">
           		<h1 class="page-info">LOGO</h1>
           		<p class="lead text-muted2">
-			  		Something short and shitty to say.
+			  		Revolutionary app that will ease your parking probles.
 		  		</p>
           		<p>
-            		<a href="{% url 'login' %}" class="site-btn mr20">Login</a>
-					<a href="{% url 'register' %}" class="site-btn mr20">Register</a>
+					{% if user.is_authenticated %}
+					{% else %}
+            			<a href="{% url 'login' %}" class="site-btn mr20">Login</a>
+						<a href="{% url 'register' %}" class="site-btn mr20">Register</a>
+					{% endif %}
           		</p>
 			<br/>
 			<div class="row justify-content-center">
@@ -105,9 +110,9 @@
 					 <div class="col-md-4">
              			 <div class="card mb-4 box-shadow">
 							 {% if obj.photo_set.all.first.photo == None %}
-							 <img class="card-img-top" src="{% static 'img/park/NoImage.png' %}" alt="Parking lot img">
+							 	<img class="card-img-top imag" src="{% static 'img/park/NoImage.png' %}" alt="Parking lot img" onclick="parkingDetail({{obj.id}});">
 							 {% else %}
-                			<img class="card-img-top" src="{% static obj.photo_set.all.first.photo %}" alt="Parking lot img">
+                				<img class="card-img-top imag" src="{% static obj.photo_set.all.first.photo %}" alt="Parking lot img" onclick="parkingDetail({{obj.id}});">
 							 {% endif %}
 							 <div class="card-body">
                   				<p class="card-text">
@@ -118,8 +123,10 @@
 								</p>
                   				<div class="d-flex justify-content-between align-items-center">
                     				<div class="btn-group">
-                      					<button type="button" class="btn btn-sm btn-outline-secondary">View details</button>
-                      					<button type="button" class="btn btn-sm btn-outline-secondary">Like</button>
+                      					<button type="button" class="btn btn-sm btn-outline-secondary" onclick="parkingDetail({{obj.id}});">View details</button>
+										{% if user.is_authenticated %}
+                      						<button type="button" class="btn btn-sm btn-outline-secondary">Like</button>
+										{% endif %}
                     				</div>
                     				<small class="text-muted">{{obj.town.country.name}}</small>
                   				</div>
@@ -157,6 +164,8 @@
 				</div>
 			</div>
 		</div>
+
+		<div id="parking-detail" style="visibility: hidden; position: fixed; bottom: -1000px; width: 100%;"></div>
 	</main>
 	<!-- Intro Section -->
 
@@ -177,5 +186,29 @@
 	<script src="{% static 'js/owl.carousel.min.js' %}"></script>
 	<script src="{% static 'js/circle-progress.min.js' %}"></script>
 	<script src="{% static 'js/main.js' %}"></script>
+	<script type="text/javascript">
+
+		function parkingDetail(id){
+		    console.log(id);
+		    console.log("ide to");
+			$.ajax({
+				url: "/home/" + id,
+				success: function(result){
+				    console.log("ide to");
+				    $("#parking-detail").css("visibility", "visible");
+    				$("#parking-detail").html(result);
+    				$("#parking-detail").animate({bottom: 0}, 500);
+  				}
+			});
+		}
+
+		function hideDetail(){
+		    $("#parking-detail").animate({bottom: -1000}, -500);
+		    $("#parking-detail").css("visibility", "hidden");
+
+		}
+
+
+	</script>
 </body>
 </html>

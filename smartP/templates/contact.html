@@ -2,9 +2,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Labs - Design Studio</title>
+	<title>SmartP</title>
 	<meta charset="UTF-8">
-	<meta name="description" content="Labs - Design Studio">
+	<meta name="description" content="SmartP">
 	<meta name="keywords" content="lab, onepage, creative, html">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- Favicon -->
@@ -41,7 +41,7 @@
 	<!-- Header section -->
 	<header class="header-section">
 		<div class="logo">
-			<img src="{% static 'img/logo.png' %}" alt=""><!-- Logo -->
+			<img src="{% static 'img/logosmall.png' %}" alt=""><!-- Logo -->
 		</div>
 		<!-- Navigation -->
 		<div class="responsive"><i class="fa fa-bars"></i></div>
@@ -50,8 +50,12 @@
 				<li><a href="{% url 'home' %}">Home</a></li>
 				<li><a href="{% url 'about' %}">About Us</a></li>
 				<li class="active"><a href="{% url 'contact' %}">Contact</a></li>
-				<li><a href="{% url 'register' %}">Register</a></li>
-				<li><a href="{% url 'login' %}">Login</a></li>
+				{% if user.is_authenticated %}
+					<li><a href="{% url 'logout' %}">Log out</a></li>
+				{% else %}
+					<li><a href="{% url 'register' %}">Register</a></li>
+					<li><a href="{% url 'login' %}">Log in</a></li>
+				{% endif %}
 			</ul>
 		</nav>
 	</header>

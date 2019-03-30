@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth import models as authmodels
 
 
 class User(models.Model):
@@ -29,7 +30,7 @@ class Photo(models.Model):
 
 
 class FavouriteParkingLot(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(authmodels.User, on_delete=models.CASCADE)
     parkinglot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE)
 
 
