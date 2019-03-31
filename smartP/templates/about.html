@@ -51,6 +51,7 @@
 				<li class="active"><a href="{% url 'about' %}">About Us</a></li>
 				<li><a href="{% url 'contact' %}">Contact</a></li>
 				{% if user.is_authenticated %}
+					<li><a href="{% url 'favourite' %}">Favourite</a></li>
 					<li><a href="{% url 'logout' %}">Log out</a></li>
 				{% else %}
 					<li><a href="{% url 'register' %}">Register</a></li>
@@ -62,13 +63,43 @@
 	<!-- Header section end -->
 
 
-	<!-- Intro Section -->
-	<div class="hero-section">
-		<div class="hero-content">
-			<div class="hero-center">
-            	<p>About us page</p>
+	<div class="page-top-section">
+		<div class="overlay"></div>
+		<div class="container text-left">
+			<div class="page-info">
+				<h2>About us</h2>
 			</div>
 		</div>
+	</div>
+
+	<!-- Intro Section -->
+	<div class="page-section spad">
+		<!--<div class="hero-content">-->
+			<!--<div class="hero-center">-->
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="row">
+								<div class="col-6">
+									<div class="card">
+										<img src="{% static 'img/aboutlogo.png' %}" alt="About photo">
+									</div>
+								</div>
+								<div class="col-6 text-left">
+									<h3>Something about this web app</h3>
+									<br>
+									<p>This is web application in django for my bachelor thesis
+										<br>Author: Tomas Samuel Lang
+										<br>Purpose: This is app for smart parking system where you can find all parking lots in any city you want and currently occupied slots
+										so you can easily find out where to park your car
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<!--</div>-->
+		<!--</div>-->
 	</div>
 	<!-- Intro Section -->
 

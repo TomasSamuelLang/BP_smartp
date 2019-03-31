@@ -76,11 +76,13 @@
 				<div class="col-md-12">
 					<p>Log into our system</p>
 					<br>
-					<form  method="post" action="/login/">
-						{% csrf_token %}
-						{{ form|crispy }}
-						<button class="site-btn mr20">Login</button>
-					</form>
+					<div class="col-md-6">
+						<form  method="post" action="/login/">
+							{% csrf_token %}
+							{{ form|crispy }}
+							<button class="site-btn mr20">Login</button>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>

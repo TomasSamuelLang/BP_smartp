@@ -79,11 +79,13 @@
 					<p>At this page you can register yourself to our system.</p>
 					<p>Registration brings you feature of adding favourite parking lots so you can access information about them more easily.</p>
 					<br>
-					<form  method="post">
-						{% csrf_token %}
-						{{ form|crispy }}
-						<button class="site-btn mr20">Register</button>
-					</form>
+					<div class="col-md-6">
+						<form  method="post">
+							{% csrf_token %}
+							{{ form|crispy }}
+							<button class="site-btn mr20">Register</button>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>

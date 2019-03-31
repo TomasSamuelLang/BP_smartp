@@ -17,8 +17,8 @@ def homepage(request):
     results = ParkingLot.objects.all().select_related()
     query = request.GET.get("query")
 
-    if request.user.is_authenticated:
-        print(request.user.id)
+    # if request.user.is_authenticated:
+        # print(request.user.id)
 
     if query:
         results = results.filter(
@@ -47,10 +47,6 @@ def aboutpage(request):
 
 def contactpage(request):
     return render(request, "contact.html", {})
-
-
-def favouritepage(request):
-    return render(request, "favourite.html", {})
 
 
 def registerpage(request):
@@ -119,5 +115,74 @@ def parkingDetails(request, id):
     return render(request, "parkingDetail.html", context)
 
 
-# def showFavourite(request):
+def showFavourite(request):
 
+    if request.user.is_authenticated:
+
+        favourite = FavouriteParkingLot.objects.filter(user_id=request.user.id)
+        ids = []
+        for x in favourite:
+            ids.append(x.parkinglot_id)
+
+        print(favourite)
+        result = ParkingLot.objects.filter(id__in=ids).select_related()
+
+        query = request.GET.get("query")
+
+        # if request.user.is_authenticated:
+        # print(request.user.id)
+
+        if query:
+            result = result.filter(
+                Q(town__name__icontains=query) |
+                Q(address__icontains=query) |
+                Q(name__icontains=query)
+                # | Q(town_country__name__icontains=query)
+            ).order_by('actualparkedcars')
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(result, 9)
+
+        try:
+            parkings = paginator.page(page)
+        except PageNotAnInteger:
+            parkings = paginator.page(1)
+        except EmptyPage:
+            parkings = paginator.page(paginator.num_pages)
+
+        print(parkings)
+
+    return render(request, "favourite.html", {'favourite': parkings})
+
+
+def add_favourite(request, id):
+
+    # if request.method == 'POST':
+    if request.user.is_authenticated:
+        user_id = request.user.id
+        parking_id = id
+        print(FavouriteParkingLot.objects.filter(user_id=user_id, parkinglot_id=parking_id))
+        if FavouriteParkingLot.objects.filter(user_id=user_id, parkinglot_id=parking_id).count() == 0:
+            print("Object create -------")
+            FavouriteParkingLot.objects.create(user_id=user_id, parkinglot_id=parking_id)
+
+        return HttpResponse(status=200)
+
+    return HttpResponse(status=404)
+    # return HttpResponse(status=404)
+
+
+def dislike(request, id):
+
+    if request.user.is_authenticated:
+
+        user_id = request.user.id
+        parking_id = id
+        print(FavouriteParkingLot.objects.all())
+        if FavouriteParkingLot.objects.filter(user_id=user_id, parkinglot_id=parking_id).count() != 0:
+
+            parking = FavouriteParkingLot.objects.filter(user_id=user_id, parkinglot_id=parking_id)
+            parking.delete()
+        return HttpResponse(status=200)
+
+    return HttpResponse(status=404)

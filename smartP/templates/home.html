@@ -54,6 +54,7 @@
 				<li><a href="{% url 'about' %}">About Us</a></li>
 				<li><a href="{% url 'contact' %}">Contact</a></li>
 				{% if user.is_authenticated %}
+					<li><a href="{% url 'favourite' %}">Favourite</a></li>
 					<li><a href="{% url 'logout' %}">Log out</a></li>
 				{% else %}
 					<li><a href="{% url 'register' %}">Register</a></li>
@@ -70,9 +71,9 @@
 	<main role="main">
 		<section class="jumbotron text-center">
         	<div class="container">
-          		<h1 class="page-info">LOGO</h1>
+          		<img src="{% static 'img/logo.png' %}" alt="Logo">
           		<p class="lead text-muted2">
-			  		Revolutionary app that will ease your parking probles.
+			  		Revolutionary app that will ease your problems with parking.
 		  		</p>
           		<p>
 					{% if user.is_authenticated %}
@@ -81,24 +82,24 @@
 						<a href="{% url 'register' %}" class="site-btn mr20">Register</a>
 					{% endif %}
           		</p>
-			<br/>
-			<div class="row justify-content-center">
-				<div class="col-12 col-md-10 col-lg-8">
-					<form class="card card-sm" method="GET">
-						<div class="card-body row no-gutters align-items-center">
-							<div class="col-auto">
-								<i class="fas fa-search h4 text-body"></i>
+				<br/>
+				<div class="row justify-content-center">
+					<div class="col-12 col-md-10 col-lg-8">
+						<form class="card card-sm" method="GET">
+							<div class="card-body row no-gutters align-items-center">
+								<div class="col-auto">
+									<i class="fas fa-search h4 text-body"></i>
+								</div>
+								<div class="col">
+									<input class="form-control form-control-lg form-control-borderless" type="search" name="query" value="{{ request.GET.query }}" placeholder="Search parking lot address or name">
+								</div>
+								<div class="col-auto">
+									<button class="site-btn mr20 ml20" type="submit">Search</button>
+								</div>
 							</div>
-							<div class="col">
-								<input class="form-control form-control-lg form-control-borderless" type="search" name="query" value="{{ request.GET.query }}" placeholder="Search parking lot address or name">
-							</div>
-							<div class="col-auto">
-								<button class="site-btn mr20 ml20" type="submit">Search</button>
-							</div>
-						</div>
-					</form>
+						</form>
+					</div>
 				</div>
-			</div>
         	</div>
       	</section>
 
@@ -106,7 +107,6 @@
 			<div class="container">
 				<div class="row">
 					{% for obj in query %}
-
 					 <div class="col-md-4">
              			 <div class="card mb-4 box-shadow">
 							 {% if obj.photo_set.all.first.photo == None %}
@@ -119,13 +119,12 @@
 									{{obj.name}}
 								 	<br>
 									Address: {{obj.address}},	{{obj.town.name}}
-
 								</p>
                   				<div class="d-flex justify-content-between align-items-center">
                     				<div class="btn-group">
                       					<button type="button" class="btn btn-sm btn-outline-secondary" onclick="parkingDetail({{obj.id}});">View details</button>
 										{% if user.is_authenticated %}
-                      						<button type="button" class="btn btn-sm btn-outline-secondary">Like</button>
+                      						<button type="button" class="btn btn-sm btn-outline-secondary" formmethod="post" onclick="addfavourite({{user.id}},{{obj.id}});">Like</button>
 										{% endif %}
                     				</div>
                     				<small class="text-muted">{{obj.town.country.name}}</small>
@@ -134,34 +133,37 @@
 						 </div>
 					 </div>
 					{% endfor %}
-
+				</div>
 					{% if query.has_other_pages %}
-					<div class="row">
-						<div class="col-12">
-  						<ul class="pagination">
-    					{% if query.has_previous %}
-      						<li><a href="?page={{ users.previous_page_number }}">&laquo;</a></li>
-    					{% else %}
-      						<li class="disabled"><span>&laquo;</span></li>
-    					{% endif %}
-    					{% for i in query.paginator.page_range %}
-      					{% if query.number == i %}
-        					<li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-      					{% else %}
-        					<li><a href="?page={{ i }}">{{ i }}</a></li>
-						{% endif %}
-    					{% endfor %}
-    					{% if query.has_next %}
-      						<li><a href="?page={{ users.next_page_number }}">&raquo;</a></li>
-    					{% else %}
-      						<li class="disabled"><span>&raquo;</span></li>
-    					{% endif %}
-  					</ul>
-					</div>
-					</div>
+				<div class="row">
+						<div class="col-md-12">
+							<!--<div class="row">-->
+							<div class="text-xs-center">
+							<ul class="pagination">
+								{% if query.has_previous %}
+									<li class="page-item"><a class="page-link" href="?page={{ users.previous_page_number }}">&laquo;</a></li>
+								{% else %}
+									<li class="disabled page-item"><span class="page-link">&laquo;</span></li>
+								{% endif %}
+								{% for i in query.paginator.page_range %}
+								{% if query.number == i %}
+									<li class="active page-item"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
+								{% else %}
+									<li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+								{% endif %}
+								{% endfor %}
+								{% if query.has_next %}
+									<li class="page-item"><a  class="page-link" href="?page={{ users.next_page_number }}">&raquo;</a></li>
+								{% else %}
+									<li class="disabled page-item"><span class="page-link" >&raquo;</span></li>
+								{% endif %}
+							</ul>
+							</div>
+							<!--</div>-->
+						</div>
+				</div>
 				{% endif %}
 
-				</div>
 			</div>
 		</div>
 
@@ -208,6 +210,18 @@
 
 		}
 
+		function addfavourite(u_id,p_id){
+		    console.log(u_id,p_id);
+			$.ajax({
+				url: "/addfav/" + p_id,
+				success: function(result){
+				    console.log("ide to");
+				    // $("#parking-detail").css("visibility", "visible");
+    				// $("#parking-detail").html(result);
+    				// $("#parking-detail").animate({bottom: 0}, 500);
+  				}
+			});
+		}
 
 	</script>
 </body>

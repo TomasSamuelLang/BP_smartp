@@ -28,5 +28,7 @@ urlpatterns = [
     path('thanks/', thankspage, name="thanks"),
     path('home/<int:id>', parkingDetails, name="detail"),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('favourite/', homepage)
+    path('favourite/', showFavourite, name='favourite'),
+    path('addfav/<int:id>', add_favourite, name='addfav'),
+    path('dislike/<int:id>', dislike, name='dislike')
 ]
