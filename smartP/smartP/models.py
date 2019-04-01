@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth import models as authmodels
+from django import template
+
+register = template.Library()
 
 
 class User(models.Model):

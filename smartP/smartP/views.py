@@ -31,6 +31,8 @@ def homepage(request):
     page = request.GET.get('page', 1)
     paginator = Paginator(results, 9)
 
+    favourite = FavouriteParkingLot.objects.filter(user_id=request.user.id)
+
     try:
         parkings = paginator.page(page)
     except PageNotAnInteger:
@@ -38,7 +40,7 @@ def homepage(request):
     except EmptyPage:
         parkings = paginator.page(paginator.num_pages)
 
-    return render(request, "home.html", {'query': parkings})
+    return render(request, "home.html", {'query': parkings, 'favourite': favourite})
 
 
 def aboutpage(request):

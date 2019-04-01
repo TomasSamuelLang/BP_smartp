@@ -1,4 +1,5 @@
 {% load static %}
+{% load utilitytags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -106,6 +107,9 @@
 		<div class="album py-5 bg-light">
 			<div class="container">
 				<div class="row">
+					{% if query|length == 0 %}
+					<h3>No results found! Slut up</h3>
+					{% endif %}
 					{% for obj in query %}
 					 <div class="col-md-4">
              			 <div class="card mb-4 box-shadow">
@@ -124,7 +128,11 @@
                     				<div class="btn-group">
                       					<button type="button" class="btn btn-sm btn-outline-secondary" onclick="parkingDetail({{obj.id}});">View details</button>
 										{% if user.is_authenticated %}
-                      						<button type="button" class="btn btn-sm btn-outline-secondary" formmethod="post" onclick="addfavourite({{user.id}},{{obj.id}});">Like</button>
+											{% if obj|is_favourite:user is False %}
+											<button type="button" class="btn btn-sm btn-outline-secondary likeButton" data-obj_id="{{obj.id}}">Like</button>
+											{% else %}
+											<button type="button" class="btn btn-sm btn-outline-secondary dislikeButton" data-obj_id="{{obj.id}}">Dislike</button>
+											{% endif %}
 										{% endif %}
                     				</div>
                     				<small class="text-muted">{{obj.town.country.name}}</small>
@@ -141,7 +149,7 @@
 							<div class="text-xs-center">
 							<ul class="pagination">
 								{% if query.has_previous %}
-									<li class="page-item"><a class="page-link" href="?page={{ users.previous_page_number }}">&laquo;</a></li>
+									<li class="page-item"><a class="page-link" href="?page={{ query.previous_page_number }}">&laquo;</a></li>
 								{% else %}
 									<li class="disabled page-item"><span class="page-link">&laquo;</span></li>
 								{% endif %}
@@ -153,7 +161,7 @@
 								{% endif %}
 								{% endfor %}
 								{% if query.has_next %}
-									<li class="page-item"><a  class="page-link" href="?page={{ users.next_page_number }}">&raquo;</a></li>
+									<li class="page-item"><a  class="page-link" href="?page={{ query.next_page_number }}">&raquo;</a></li>
 								{% else %}
 									<li class="disabled page-item"><span class="page-link" >&raquo;</span></li>
 								{% endif %}
@@ -210,18 +218,36 @@
 
 		}
 
-		function addfavourite(u_id,p_id){
-		    console.log(u_id,p_id);
-			$.ajax({
-				url: "/addfav/" + p_id,
-				success: function(result){
-				    console.log("ide to");
-				    // $("#parking-detail").css("visibility", "visible");
-    				// $("#parking-detail").html(result);
-    				// $("#parking-detail").animate({bottom: 0}, 500);
-  				}
-			});
-		}
+		$('.dislikeButton').on('click',
+			function(){
+		    	btn = $(this);
+				uid = {{user.id}};
+		    	p_id = this.dataset.obj_id;
+				$.ajax({
+					url: "/dislike/" + p_id,
+					success: function (result) {
+						console.log("ide dislike");
+						btn.removeClass("dislikeButton").addClass("likeButton").text("Like");
+					}
+				});
+			}
+		);
+
+		$('.likeButton').on('click',
+			function(){
+		    btn = $(this);
+		    	u_id = {{user.id}};
+		    	p_id = this.dataset.obj_id;
+				console.log(u_id,p_id);
+				$.ajax({
+					url: "/addfav/" + p_id,
+					success: function(result){
+						console.log("ide to");
+						btn.removeClass("likeButton").addClass("dislikeButton").text("Dislike");
+					}
+				});
+			}
+		);
 
 	</script>
 </body>

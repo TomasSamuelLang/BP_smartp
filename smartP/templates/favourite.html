@@ -126,6 +126,9 @@
 		<div class="album py-5 bg-light">
 			<div class="container">
 				<div class="row">
+					{% if favourite|length == 0 %}
+					<h3>No favourite parking lots found! Slut up</h3>
+					{% endif %}
 					{% for obj in favourite %}
 
 					 <div class="col-md-4">
@@ -161,7 +164,7 @@
 						<div class="col-md-12">
 							<ul class="pagination">
 								{% if favourite.has_previous %}
-									<li class="page-item"><a class="page-link" href="?page={{ users.previous_page_number }}">&laquo;</a></li>
+									<li class="page-item"><a class="page-link" href="?page={{ favourite.previous_page_number }}">&laquo;</a></li>
 								{% else %}
 									<li class="disabled page-item"><span class="page-link">&laquo;</span></li>
 								{% endif %}
@@ -173,7 +176,7 @@
 								{% endif %}
 								{% endfor %}
 								{% if favourite.has_next %}
-									<li class="page-item"><a  class="page-link" href="?page={{ users.next_page_number }}">&raquo;</a></li>
+									<li class="page-item"><a  class="page-link" href="?page={{ favourite.next_page_number }}">&raquo;</a></li>
 								{% else %}
 									<li class="disabled page-item"><span class="page-link" >&raquo;</span></li>
 								{% endif %}
@@ -227,6 +230,7 @@
                 url: "/dislike/" + p_id,
                 success: function (result) {
                     console.log("ide dislike");
+                    location.reload(true);
                 }
             });
 		}
