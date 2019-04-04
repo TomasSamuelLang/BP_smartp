@@ -7,7 +7,7 @@ from .forms import *
 from .models import *
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
-from .utils import calculatePeakHours, calculatePeakDays
+from .utils import calculatePeakHours, calculatePeakDays, calculate_peak_hours_free, calculate_peak_hours_free2, calculate_peak_days, calculate_peak_hours
 import datetime
 from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext
@@ -97,10 +97,12 @@ def thankspage(request):
 def parkingDetails(request, id):
 
     try:
-        details = ParkingLot.objects.all().select_related().get(id=id)
+        details = ParkingLot.objects.all().get(id=id)
     except details.DoesNotExist:
         raise Http404
 
+    freespace = details.capacity - details.actualparkedcars
+    statshourfree = calculate_peak_hours_free(details)
     statshour = calculatePeakHours(details)
     statsdays = calculatePeakDays(details)
     labelhour = [str(x) for x in range(0, 24)]
@@ -111,11 +113,39 @@ def parkingDetails(request, id):
         'peakhours': statshour,
         'labels': labelhour,
         "peakdays": statsdays,
-        "labelDay": labelday
+        "labelDay": labelday,
+        "free": statshourfree,
+        "freespace": freespace,
     }
 
     return render(request, "parkingDetail.html", context)
 
+
+def filtered_parking_details(request, id, date):
+
+    try:
+        details = ParkingLot.objects.all().get(id=id)
+    except details.DoesNotExist:
+        raise Http404
+
+    freespace = details.capacity - details.actualparkedcars
+    statshourfree = calculate_peak_hours_free2(details, date)
+    statshour = calculate_peak_hours(details, date)
+    statsdays = calculate_peak_days(details, date)
+    labelhour = [str(x) for x in range(0, 24)]
+    labelday = [datetime.date(2019, 3, x+3).strftime('%A') for x in range(1, 8)]
+    print(labelday)
+    context = {
+        'details': details,
+        'peakhours': statshour,
+        'labels': labelhour,
+        "peakdays": statsdays,
+        "labelDay": labelday,
+        "free": statshourfree,
+        "freespace": freespace,
+    }
+
+    return render(request, "parkingDetail.html", context)
 
 def showFavourite(request):
 
@@ -126,13 +156,10 @@ def showFavourite(request):
         for x in favourite:
             ids.append(x.parkinglot_id)
 
-        print(favourite)
+        # print(favourite)
         result = ParkingLot.objects.filter(id__in=ids).select_related()
 
         query = request.GET.get("query")
-
-        # if request.user.is_authenticated:
-        # print(request.user.id)
 
         if query:
             result = result.filter(
@@ -163,7 +190,7 @@ def add_favourite(request, id):
     if request.user.is_authenticated:
         user_id = request.user.id
         parking_id = id
-        print(FavouriteParkingLot.objects.filter(user_id=user_id, parkinglot_id=parking_id))
+        # print(FavouriteParkingLot.objects.filter(user_id=user_id, parkinglot_id=parking_id))
         if FavouriteParkingLot.objects.filter(user_id=user_id, parkinglot_id=parking_id).count() == 0:
             print("Object create -------")
             FavouriteParkingLot.objects.create(user_id=user_id, parkinglot_id=parking_id)
@@ -180,9 +207,8 @@ def dislike(request, id):
 
         user_id = request.user.id
         parking_id = id
-        print(FavouriteParkingLot.objects.all())
+        # print(FavouriteParkingLot.objects.all())
         if FavouriteParkingLot.objects.filter(user_id=user_id, parkinglot_id=parking_id).count() != 0:
-
             parking = FavouriteParkingLot.objects.filter(user_id=user_id, parkinglot_id=parking_id)
             parking.delete()
         return HttpResponse(status=200)

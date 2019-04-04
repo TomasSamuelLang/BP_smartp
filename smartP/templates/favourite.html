@@ -147,9 +147,9 @@
 								</p>
                   				<div class="d-flex justify-content-between align-items-center">
                     				<div class="btn-group">
-                      					<button type="button" class="btn btn-sm btn-outline-secondary" onclick="parkingDetail({{obj.id}});">View details</button>
+                      					<button type="button" class="btn btn-sm btn-outline-secondary2" onclick="parkingDetail({{obj.id}});">View details</button>
 										{% if user.is_authenticated %}
-                      						<button type="button" class="btn btn-sm btn-outline-secondary" onclick="dislikeparking({{user.id}},{{obj.id}});">Dislike</button>
+                      						<button type="button" class="btn btn-sm btn-outline-secondary2" onclick="dislikeparking({{user.id}},{{obj.id}});">Dislike</button>
 										{% endif %}
                     				</div>
                     				<small class="text-muted">{{obj.town.country.name}}</small>

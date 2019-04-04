@@ -69,9 +69,9 @@
 
 
 	<!-- Intro Section -->
-	<main role="main">
+	<main role="main" id="main">
 		<section class="jumbotron text-center">
-        	<div class="container">
+        	<div class="container" id="search">
           		<img src="{% static 'img/logo.png' %}" alt="Logo">
           		<p class="lead text-muted2">
 			  		Revolutionary app that will ease your problems with parking.
@@ -104,7 +104,7 @@
         	</div>
       	</section>
 
-		<div class="album py-5 bg-light">
+		<div class="album py-5 bg-light" id="content">
 			<div class="container">
 				<div class="row">
 					{% if query|length == 0 %}
@@ -126,12 +126,12 @@
 								</p>
                   				<div class="d-flex justify-content-between align-items-center">
                     				<div class="btn-group">
-                      					<button type="button" class="btn btn-sm btn-outline-secondary" onclick="parkingDetail({{obj.id}});">View details</button>
+                      					<button type="button" class="btn btn-sm btn-outline-secondary2" onclick="parkingDetail({{obj.id}});">View details</button>
 										{% if user.is_authenticated %}
 											{% if obj|is_favourite:user is False %}
-											<button type="button" class="btn btn-sm btn-outline-secondary likeButton" data-obj_id="{{obj.id}}">Like</button>
+											<button type="button" class="btn btn-sm btn-outline-secondary2 likeButton" data-obj_id="{{obj.id}}">Like</button>
 											{% else %}
-											<button type="button" class="btn btn-sm btn-outline-secondary dislikeButton" data-obj_id="{{obj.id}}">Dislike</button>
+											<button type="button" class="btn btn-sm btn-outline-secondary2 dislikeButton" data-obj_id="{{obj.id}}">Dislike</button>
 											{% endif %}
 										{% endif %}
                     				</div>
@@ -196,15 +196,17 @@
 	<script src="{% static 'js/owl.carousel.min.js' %}"></script>
 	<script src="{% static 'js/circle-progress.min.js' %}"></script>
 	<script src="{% static 'js/main.js' %}"></script>
+	<script src="{% static 'js/util.js' %}"></script>
+	<script src="{% static 'js/carousel.js' %}"></script>
 	<script type="text/javascript">
 
 		function parkingDetail(id){
-		    console.log(id);
-		    console.log("ide to");
 			$.ajax({
 				url: "/home/" + id,
 				success: function(result){
-				    console.log("ide to");
+				    $("#content").css("opacity", 0.3);
+				    $("#search").css("opacity", 0.3);
+				    $("#parking-detail").css("opacity", 1);
 				    $("#parking-detail").css("visibility", "visible");
     				$("#parking-detail").html(result);
     				$("#parking-detail").animate({bottom: 0}, 500);
@@ -215,6 +217,8 @@
 		function hideDetail(){
 		    $("#parking-detail").animate({bottom: -1000}, -500);
 		    $("#parking-detail").css("visibility", "hidden");
+		    $("#content").css("opacity", 1);
+			$("#search").css("opacity", 1);
 
 		}
 

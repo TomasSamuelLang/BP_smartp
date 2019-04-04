@@ -30,5 +30,6 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('favourite/', showFavourite, name='favourite'),
     path('addfav/<int:id>', add_favourite, name='addfav'),
-    path('dislike/<int:id>', dislike, name='dislike')
+    path('dislike/<int:id>', dislike, name='dislike'),
+    path("filter/<int:id>/<str:date>", filtered_parking_details, name='filter'),
 ]

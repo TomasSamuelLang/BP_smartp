@@ -2729,6 +2729,17 @@ fieldset:disabled a.btn {
   border-color: #6c757d;
 }
 
+.btn-outline-secondary2 {
+  color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-outline-secondary2:hover {
+  color: #000000;
+  background-color: #ffc107;
+  border-color: #6c757d;
+}
+
 .btn-outline-secondary:hover {
   color: #fff;
   background-color: #6c757d;
@@ -4881,9 +4892,9 @@ input[type="button"].btn-block {
 
 .page-item.active .page-link {
   z-index: 1;
-  color: #fff;
-  background-color: #007bff;
-  border-color: #007bff;
+  color: #000000;
+  background-color: #ffc107;
+  border-color: #ffc107;
 }
 
 .page-item.disabled .page-link {
