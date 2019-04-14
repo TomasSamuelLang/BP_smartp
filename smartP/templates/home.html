@@ -99,6 +99,10 @@
 								</div>
 							</div>
 						</form>
+						<div class="row" style="margin-top: 20px; padding-left: 15px">
+							<h5>Search parking lots based on your location - treba nastajlovat!</h5>
+							<button class="site-btn mr20 ml20" id="location" onclick="getLocation()">Near me</button>
+						</div>
 					</div>
 				</div>
         	</div>
@@ -108,7 +112,7 @@
 			<div class="container">
 				<div class="row">
 					{% if query|length == 0 %}
-					<h3>No results found! Slut up</h3>
+					<h3>No results found!</h3>
 					{% endif %}
 					{% for obj in query %}
 					 <div class="col-md-4">
@@ -153,7 +157,7 @@
 								{% else %}
 									<li class="disabled page-item"><span class="page-link">&laquo;</span></li>
 								{% endif %}
-								{% for i in query.paginator.page_range %}
+								{% for i in page_range %}
 								{% if query.number == i %}
 									<li class="active page-item"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
 								{% else %}
@@ -209,7 +213,7 @@
 				    $("#parking-detail").css("opacity", 1);
 				    $("#parking-detail").css("visibility", "visible");
     				$("#parking-detail").html(result);
-    				$("#parking-detail").animate({bottom: 0}, 500);
+    				$("#parking-detail").animate({bottom: 200}, 500);
   				}
 			});
 		}
@@ -222,37 +226,87 @@
 
 		}
 
-		$('.dislikeButton').on('click',
-			function(){
-		    	btn = $(this);
+		dislikeFunc = function(obj){
+		    	btn = $(obj);
 				uid = {{user.id}};
-		    	p_id = this.dataset.obj_id;
+		    	p_id = obj.dataset.obj_id;
 				$.ajax({
 					url: "/dislike/" + p_id,
 					success: function (result) {
 						console.log("ide dislike");
 						btn.removeClass("dislikeButton").addClass("likeButton").text("Like");
+						btn.off("click");
+						//btn.on("click", likeFunc(obj));
+						addLikeButton();
 					}
 				});
 			}
-		);
 
-		$('.likeButton').on('click',
-			function(){
-		    btn = $(this);
+		likeFunc = function(obj){
+		    btn = $(obj);
 		    	u_id = {{user.id}};
-		    	p_id = this.dataset.obj_id;
+		    	p_id = obj.dataset.obj_id;
 				console.log(u_id,p_id);
 				$.ajax({
 					url: "/addfav/" + p_id,
 					success: function(result){
 						console.log("ide to");
 						btn.removeClass("likeButton").addClass("dislikeButton").text("Dislike");
+						btn.off("click");
+						//btn.on("click", dislikeFunc(obj));
+						addDislikeBtn();
 					}
 				});
 			}
-		);
 
+		addDislikeBtn = function() {
+            $('.dislikeButton').on('click', function () {
+                    dislikeFunc(this);
+                }
+            );
+        }
+
+
+		addLikeButton = function () {
+            $('.likeButton').on('click', function () {
+                    likeFunc(this);
+                }
+            );
+        }
+
+		function getLocation() {
+		  navigator.geolocation.getCurrentPosition(function(location) {
+			  console.log(location.coords.latitude);
+			  console.log(location.coords.longitude);
+			  console.log(location.coords.accuracy);
+			  $.ajax({
+				  url: "/location/lon=" + location.coords.longitude + "&lat=" + location.coords.latitude,
+				  success: function(result){
+				      console.log("ide lokalizacia");
+				      $("#content").html(result)
+
+				  }
+			  });
+		  });
+		}
+
+		$(document).mouseup(function (e)
+                    {
+		  let container = $("#parking-detail"); // YOUR CONTAINER SELECTOR
+
+		  if (!container.is(e.target) // if the target of the click isn't the container...
+			  && container.has(e.target).length === 0) // ... nor a descendant of the container
+		  {
+			//container.hide();
+			container.animate({bottom: -1000}, -500);
+		    container.css("visibility", "hidden");
+			$("#content").css("opacity", 1);
+			$("#search").css("opacity", 1);
+		  }
+		});
+
+        addLikeButton();
+		addDislikeBtn();
 	</script>
 </body>
 </html>

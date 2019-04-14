@@ -11,6 +11,9 @@ from .utils import calculatePeakHours, calculatePeakDays, calculate_peak_hours_f
 import datetime
 from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext
+from django.contrib.gis.geos import *
+from django.contrib.gis.measure import D
+
 
 def homepage(request):
 
@@ -40,7 +43,13 @@ def homepage(request):
     except EmptyPage:
         parkings = paginator.page(paginator.num_pages)
 
-    return render(request, "home.html", {'query': parkings, 'favourite': favourite})
+    index = paginator.page_range.index(parkings.number)
+    max_index = len(paginator.page_range)
+    start_index = index - 5 if index >= 5 else 0
+    end_index = index + 5 if index <= max_index - 5 else max_index
+    page_range = paginator.page_range[start_index:end_index]
+
+    return render(request, "home.html", {'query': parkings, 'favourite': favourite, 'page_range': page_range})
 
 
 def aboutpage(request):
@@ -147,6 +156,7 @@ def filtered_parking_details(request, id, date):
 
     return render(request, "parkingDetail.html", context)
 
+
 def showFavourite(request):
 
     if request.user.is_authenticated:
@@ -214,3 +224,31 @@ def dislike(request, id):
         return HttpResponse(status=200)
 
     return HttpResponse(status=404)
+
+
+def location(request, longitude, latitude):
+
+    point = Point(x=float(longitude), y=float(latitude), z=None, srid=4326)
+    print(point)
+
+    results = ParkingLot.objects.filter(location__distance_lte=(point, D(mi=50))).select_related().order_by('location')
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(results, 9)
+
+    favourite = FavouriteParkingLot.objects.filter(user_id=request.user.id)
+
+    try:
+        parkings = paginator.page(page)
+    except PageNotAnInteger:
+        parkings = paginator.page(1)
+    except EmptyPage:
+        parkings = paginator.page(paginator.num_pages)
+
+    index = paginator.page_range.index(parkings.number)
+    max_index = len(paginator.page_range)
+    start_index = index - 5 if index >= 5 else 0
+    end_index = index + 5 if index <= max_index - 5 else max_index
+    page_range = paginator.page_range[start_index:end_index]
+
+    return render(request, "location.html", {'query': parkings, 'favourite': favourite, 'page_range': page_range})

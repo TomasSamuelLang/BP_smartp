@@ -21,13 +21,13 @@ def update_parking(request):
         parking = SmartpParkinglot.objects.all().get(id=request.data.get('id'))
 
         if parking is not None:
-
+            # if check_password(request.data.get('password'), 'password'):
             parking.actualparkedcars = request.data.get('actualparkedcars')
             parking.save()
 
             history = {
                 'parkedcars': request.data.get('actualparkedcars'),
-                'date': datetime.today(),
+                'date': request.data.get('date'),
                 'parkinglot': request.data.get('id'),
             }
 

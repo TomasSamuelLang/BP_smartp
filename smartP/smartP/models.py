@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import models as authmodels
 from django import template
+from django.contrib.gis.db import models as geomodel
 
 register = template.Library()
 
@@ -25,6 +26,7 @@ class ParkingLot(models.Model):
     capacity = models.IntegerField()
     actualparkedcars = models.IntegerField(default=0)
     town = models.ForeignKey(Town, on_delete=models.CASCADE)
+    location = geomodel.PointField(null=True, blank=True)
 
 
 class Photo(models.Model):

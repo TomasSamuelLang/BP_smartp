@@ -60,6 +60,7 @@
 					<li><a href="{% url 'register' %}">Register</a></li>
 					<li><a href="{% url 'login' %}">Log in</a></li>
 				{% endif %}
+			</ul>
 		</nav>
 	</header>
 	<!-- Header section end -->
@@ -68,7 +69,7 @@
 	<!-- Intro Section -->
 		<main role="main">
 
-			<div class="page-top-section">
+			<div class="page-top-section" id="search">
 				<div class="overlay"></div>
 				<div class="container">
 					<div class="row">
@@ -123,11 +124,11 @@
 			<!--</div>-->
 		<!--</div>-->
 
-		<div class="album py-5 bg-light">
+		<div class="album py-5 bg-light" id="content">
 			<div class="container">
 				<div class="row">
 					{% if favourite|length == 0 %}
-					<h3>No favourite parking lots found! Slut up</h3>
+					<h3>No favourite parking lots found!</h3>
 					{% endif %}
 					{% for obj in favourite %}
 
@@ -210,20 +211,6 @@
 	<script src="{% static 'js/main.js' %}"></script>
 	<script type="text/javascript">
 
-		function parkingDetail(id){
-		    console.log(id);
-		    console.log("ide to");
-			$.ajax({
-				url: "/home/" + id,
-				success: function(result){
-				    console.log("ide to");
-				    $("#parking-detail").css("visibility", "visible");
-    				$("#parking-detail").html(result);
-    				$("#parking-detail").animate({bottom: 0}, 500);
-  				}
-			});
-		}
-
 		function dislikeparking(usr_id,p_id){
 
 			$.ajax({
@@ -235,11 +222,42 @@
             });
 		}
 
+		function parkingDetail(id){
+			$.ajax({
+				url: "/home/" + id,
+				success: function(result){
+				    $("#content").css("opacity", 0.3);
+				    $("#search").css("opacity", 0.3);
+				    $("#parking-detail").css("opacity", 1);
+				    $("#parking-detail").css("visibility", "visible");
+    				$("#parking-detail").html(result);
+    				$("#parking-detail").animate({bottom: 200}, 500);
+  				}
+			});
+		}
+
 		function hideDetail(){
 		    $("#parking-detail").animate({bottom: -1000}, -500);
 		    $("#parking-detail").css("visibility", "hidden");
+		    $("#content").css("opacity", 1);
+			$("#search").css("opacity", 1);
 
 		}
+
+		$(document).mouseup(function (e)
+                    {
+		  let container = $("#parking-detail"); // YOUR CONTAINER SELECTOR
+
+		  if (!container.is(e.target) // if the target of the click isn't the container...
+			  && container.has(e.target).length === 0) // ... nor a descendant of the container
+		  {
+			//container.hide();
+			container.animate({bottom: -1000}, -500);
+		    container.css("visibility", "hidden");
+			$("#content").css("opacity", 1);
+			$("#search").css("opacity", 1);
+		  }
+		});
 
 
 	</script>

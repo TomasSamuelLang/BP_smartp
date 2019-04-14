@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'smartP.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'smartPark',
         'USER': 'tomasl',
         'PASSWORD': 'matrix',
@@ -88,6 +88,7 @@ DATABASES = {
     }
 }
 
+POSTGIS_TEMPLATE = 'smartPark'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

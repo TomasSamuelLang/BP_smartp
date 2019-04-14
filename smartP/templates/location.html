@@ -1,0 +1,144 @@
+{% load static %}
+{% load utilitytags %}
+<div class="container" id="contain">
+    {% if query|length == 0 %}
+            <h3>No results found!</h3>
+    {% else %}
+            <h3>Parking lots near you</h3>
+        {% endif %}
+  <div class="row" style="margin-top: 20px">
+    <div class="col-md-12">
+        <div id="googleMap" style="width:100%;height:400px;"></div>
+    </div>
+  </div>
+    <div class="row" style="margin-top: 20px">
+					{% for obj in query %}
+					 <div class="col-md-4">
+             			 <div class="card mb-4 box-shadow">
+							 {% if obj.photo_set.all.first.photo == None %}
+							 	<img class="card-img-top imag" src="{% static 'img/park/NoImage.png' %}" alt="Parking lot img" onclick="parkingDetail({{obj.id}});">
+							 {% else %}
+                				<img class="card-img-top imag" src="{% static obj.photo_set.all.first.photo %}" alt="Parking lot img" onclick="parkingDetail({{obj.id}});">
+							 {% endif %}
+							 <div class="card-body">
+                  				<p class="card-text">
+									{{obj.name}}
+								 	<br>
+									Address: {{obj.address}},	{{obj.town.name}}
+								</p>
+                  				<div class="d-flex justify-content-between align-items-center">
+                    				<div class="btn-group">
+                      					<button type="button" class="btn btn-sm btn-outline-secondary2" onclick="parkingDetail({{obj.id}});">View details</button>
+										{% if user.is_authenticated %}
+											{% if obj|is_favourite:user is False %}
+											<button type="button" class="btn btn-sm btn-outline-secondary2 likeButton" data-obj_id="{{obj.id}}">Like</button>
+											{% else %}
+											<button type="button" class="btn btn-sm btn-outline-secondary2 dislikeButton" data-obj_id="{{obj.id}}">Dislike</button>
+											{% endif %}
+										{% endif %}
+                    				</div>
+                    				<small class="text-muted">{{obj.town.country.name}}</small>
+                  				</div>
+                			</div>
+						 </div>
+					 </div>
+					{% endfor %}
+				</div>
+					{% if query.has_other_pages %}
+				<div class="row">
+						<div class="col-md-12">
+							<!--<div class="row">-->
+							<div class="text-xs-center">
+							<ul class="pagination">
+								{% if query.has_previous %}
+									<li class="page-item"><a class="page-link" href="?page={{ query.previous_page_number }}">&laquo;</a></li>
+								{% else %}
+									<li class="disabled page-item"><span class="page-link">&laquo;</span></li>
+								{% endif %}
+								{% for i in page_range %}
+								{% if query.number == i %}
+									<li class="active page-item"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
+								{% else %}
+									<li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+								{% endif %}
+								{% endfor %}
+								{% if query.has_next %}
+									<li class="page-item"><a  class="page-link" href="?page={{ query.next_page_number }}">&raquo;</a></li>
+								{% else %}
+									<li class="disabled page-item"><span class="page-link" >&raquo;</span></li>
+								{% endif %}
+							</ul>
+							</div>
+							<!--</div>-->
+						</div>
+				</div>
+				{% endif %}
+    </div>
+</div>
+
+<script>
+function myMap() {
+    navigator.geolocation.getCurrentPosition(function(location) {
+			  console.log(location.coords.latitude);
+			  console.log(location.coords.longitude);
+			  let mapProp= {
+                  center:new google.maps.LatLng(location.coords.latitude,location.coords.longitude),
+                  zoom:5,
+              };
+                let map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+    });
+}
+
+dislikeFunc = function(obj){
+		    	btn = $(obj);
+				uid = {{user.id}};
+		    	p_id = obj.dataset.obj_id;
+				$.ajax({
+					url: "/dislike/" + p_id,
+					success: function (result) {
+						console.log("ide dislike");
+						btn.removeClass("dislikeButton").addClass("likeButton").text("Like");
+						btn.off("click");
+						//btn.on("click", likeFunc(obj));
+						addLikeButton();
+					}
+				});
+			}
+
+		likeFunc = function(obj){
+		    btn = $(obj);
+		    	u_id = {{user.id}};
+		    	p_id = obj.dataset.obj_id;
+				console.log(u_id,p_id);
+				$.ajax({
+					url: "/addfav/" + p_id,
+					success: function(result){
+						console.log("ide to");
+						btn.removeClass("likeButton").addClass("dislikeButton").text("Dislike");
+						btn.off("click");
+						//btn.on("click", dislikeFunc(obj));
+						addDislikeBtn();
+					}
+				});
+			}
+
+		addDislikeBtn = function() {
+            $('.dislikeButton').on('click', function () {
+                    dislikeFunc(this);
+                }
+            );
+        }
+
+
+		addLikeButton = function () {
+            $('.likeButton').on('click', function () {
+                    likeFunc(this);
+                }
+            );
+        }
+
+        addLikeButton();
+		addDislikeBtn();
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=abcdefgh&callback=myMap"></script>
