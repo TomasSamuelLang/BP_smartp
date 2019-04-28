@@ -140,12 +140,28 @@
                 				<img class="card-img-top imag" src="{% static obj.photo_set.all.first.photo %}" alt="Parking lot img" onclick="parkingDetail({{obj.id}});">
 							 {% endif %}
 							 <div class="card-body">
-                  				<p class="card-text">
-									{{obj.name}}
-								 	<br>
-									Address: {{obj.address}},	{{obj.town.name}}
+                  				<table class="table table-borderless">
+                      				<thead>
+										<tr>
+											<th scope="col" style="padding: 0rem;">
+												{{obj.name}}
+											</th>
+											<td scope="row" style="padding: 0rem;">
+												{% if obj.actualparkedcars < obj.capacity %}
+												<span class="dotGreen"></span>
+												{% else %}
+												<span class="dotRed"></span>
+												{% endif %}
+											</td>
+										</tr>
+									</thead>
+								 </table>
 
-								</p>
+                  				<p class="card-text">
+									<!--{{obj.name}}-->
+									<!--<span class="dot"></span>-->
+								 	<!--<br>-->
+									Address: {{obj.address}},	{{obj.town.name}}
                   				<div class="d-flex justify-content-between align-items-center">
                     				<div class="btn-group">
                       					<button type="button" class="btn btn-sm btn-outline-secondary2" onclick="parkingDetail({{obj.id}});">View details</button>
@@ -197,7 +213,7 @@
 
 	<!-- Footer section -->
 	<footer class="footer-section">
-		<h2>2017 All rights reserved. Designed by <a href="https://colorlib.com" target="_blank">Colorlib</a></h2>
+		<h2><a href="{% url 'home' %}">SmartP</a></h2>
 	</footer>
 	<!-- Footer section end -->
 
@@ -244,20 +260,20 @@
 
 		}
 
-		$(document).mouseup(function (e)
-                    {
-		  let container = $("#parking-detail"); // YOUR CONTAINER SELECTOR
-
-		  if (!container.is(e.target) // if the target of the click isn't the container...
-			  && container.has(e.target).length === 0) // ... nor a descendant of the container
-		  {
-			//container.hide();
-			container.animate({bottom: -1000}, -500);
-		    container.css("visibility", "hidden");
-			$("#content").css("opacity", 1);
-			$("#search").css("opacity", 1);
-		  }
-		});
+		// $(document).mouseup(function (e)
+        //             {
+		//   let container = $("#parking-detail"); // YOUR CONTAINER SELECTOR
+		//
+		//   if (!container.is(e.target) // if the target of the click isn't the container...
+		// 	  && container.has(e.target).length === 0) // ... nor a descendant of the container
+		//   {
+		// 	//container.hide();
+		// 	container.animate({bottom: -1000}, -500);
+		//     container.css("visibility", "hidden");
+		// 	$("#content").css("opacity", 1);
+		// 	$("#search").css("opacity", 1);
+		//   }
+		// });
 
 
 	</script>

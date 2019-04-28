@@ -7,9 +7,8 @@
             <h3>Parking lots near you</h3>
         {% endif %}
   <div class="row" style="margin-top: 20px">
-    <div class="col-md-12">
-        <div id="googleMap" style="width:100%;height:400px;"></div>
-    </div>
+	  <iframe id= "mapsource" style="width: 100%; height: 400px" src=""></iframe>
+<script src="{% static 'js/OpenLayers.js' %}"></script>
   </div>
     <div class="row" style="margin-top: 20px">
 					{% for obj in query %}
@@ -77,17 +76,25 @@
 </div>
 
 <script>
-function myMap() {
-    navigator.geolocation.getCurrentPosition(function(location) {
-			  console.log(location.coords.latitude);
-			  console.log(location.coords.longitude);
-			  let mapProp= {
-                  center:new google.maps.LatLng(location.coords.latitude,location.coords.longitude),
-                  zoom:5,
-              };
-                let map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+// function myMap() {
+//     navigator.geolocation.getCurrentPosition(function(location) {
+// 			  console.log(location.coords.latitude);
+// 			  console.log(location.coords.longitude);
+// 			  let mapProp= {
+//                   center:new google.maps.LatLng(location.coords.latitude,location.coords.longitude),
+//                   zoom:5,
+//               };
+//                 let map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+//     });
+// // }
+
+navigator.geolocation.getCurrentPosition(function(location) {
+
+    $("#mapsource").attr("src", "http://www.openstreetmap.org/export/embed.html?bbox="+
+		location.coords.longitude+"%2C"+location.coords.latitude+"%2C"+
+		location.coords.longitude+"%2C"+location.coords.latitude+
+		"&amp;layer=mapnik&marker="+location.coords.latitude+"%2C"+location.coords.longitude)
     });
-}
 
 dislikeFunc = function(obj){
 		    	btn = $(obj);
@@ -141,4 +148,4 @@ dislikeFunc = function(obj){
 		addDislikeBtn();
 </script>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=abcdefgh&callback=myMap"></script>
+<!--<script src="https://maps.googleapis.com/maps/api/js?key=abcdefgh&callback=myMap"></script>-->

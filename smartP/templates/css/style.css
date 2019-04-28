@@ -1953,6 +1953,22 @@ button.tiny, .button.tiny {
 button.alert:hover, button.alert:focus, .button.alert:hover, .button.alert:focus {
     color: #fff;}
 
+.dotGreen {
+  height: 10px;
+  width: 10px;
+  background-color: #3e8f3e;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dotRed {
+  height: 10px;
+  width: 10px;
+  background-color: #cf2a0e;
+  border-radius: 50%;
+  display: inline-block;
+}
+
 /*# sourceMappingURL=foundation-datepicker.css.map */
 
 

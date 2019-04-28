@@ -76,16 +76,19 @@
           		<p class="lead text-muted2">
 			  		Revolutionary app that will ease your problems with parking.
 		  		</p>
+				{% if user.is_authenticated %}
+				{% else %}
           		<p>
-					{% if user.is_authenticated %}
-					{% else %}
             			<a href="{% url 'login' %}" class="site-btn mr20">Login</a>
 						<a href="{% url 'register' %}" class="site-btn mr20">Register</a>
-					{% endif %}
           		</p>
+					Log in first for using all features of  this system
+				{% endif %}
+
 				<br/>
+				{% if user.is_authenticated %}
 				<div class="row justify-content-center">
-					<div class="col-12 col-md-10 col-lg-8">
+					<div class="col-12 col-md-10 col-lg-10">
 						<form class="card card-sm" method="GET">
 							<div class="card-body row no-gutters align-items-center">
 								<div class="col-auto">
@@ -96,25 +99,27 @@
 								</div>
 								<div class="col-auto">
 									<button class="site-btn mr20 ml20" type="submit">Search</button>
+									<!--<button class="site-btn mr20 ml20" id="location" onclick="getLocation()">Near me</button>-->
+									<a href="#" class="site-btn mr20 ml20" id="location" onclick="getLocation()">Near me</a>
 								</div>
 							</div>
 						</form>
-						<div class="row" style="margin-top: 20px; padding-left: 15px">
-							<h5>Search parking lots based on your location - treba nastajlovat!</h5>
-							<button class="site-btn mr20 ml20" id="location" onclick="getLocation()">Near me</button>
-						</div>
+						<!--<div class="row" style="margin-top: 20px; padding-left: 15px">-->
+							<!--<h5>Search parking lots based on your location - treba nastajlovat!</h5>-->
+						<!--</div>-->
 					</div>
 				</div>
+				{% endif %}
         	</div>
       	</section>
 
 		<div class="album py-5 bg-light" id="content">
 			<div class="container">
 				<div class="row">
-					{% if query|length == 0 %}
+					{% if parkings|length == 0 %}
 					<h3>No results found!</h3>
 					{% endif %}
-					{% for obj in query %}
+					{% for obj in parkings %}
 					 <div class="col-md-4">
              			 <div class="card mb-4 box-shadow">
 							 {% if obj.photo_set.all.first.photo == None %}
@@ -123,9 +128,27 @@
                 				<img class="card-img-top imag" src="{% static obj.photo_set.all.first.photo %}" alt="Parking lot img" onclick="parkingDetail({{obj.id}});">
 							 {% endif %}
 							 <div class="card-body">
+								 <table class="table table-borderless">
+                      				<thead>
+										<tr>
+											<th scope="col" style="padding: 0rem;">
+												{{obj.name}}
+											</th>
+											<td scope="row" style="padding: 0rem;">
+												{% if obj.actualparkedcars < obj.capacity %}
+												<span class="dotGreen"></span>
+												{% else %}
+												<span class="dotRed"></span>
+												{% endif %}
+											</td>
+										</tr>
+									</thead>
+								 </table>
+
                   				<p class="card-text">
-									{{obj.name}}
-								 	<br>
+									<!--{{obj.name}}-->
+									<!--<span class="dot"></span>-->
+								 	<!--<br>-->
 									Address: {{obj.address}},	{{obj.town.name}}
 								</p>
                   				<div class="d-flex justify-content-between align-items-center">
@@ -139,6 +162,7 @@
 											{% endif %}
 										{% endif %}
                     				</div>
+									<!--<span class="dot"></span>-->
                     				<small class="text-muted">{{obj.town.country.name}}</small>
                   				</div>
                 			</div>
@@ -146,26 +170,39 @@
 					 </div>
 					{% endfor %}
 				</div>
-					{% if query.has_other_pages %}
+					{% if parkings.has_other_pages %}
 				<div class="row">
 						<div class="col-md-12">
 							<!--<div class="row">-->
 							<div class="text-xs-center">
 							<ul class="pagination">
-								{% if query.has_previous %}
-									<li class="page-item"><a class="page-link" href="?page={{ query.previous_page_number }}">&laquo;</a></li>
+								{% if parkings.has_previous %}
+									<li class="page-item"><a class="page-link"  href="
+
+									?{% if search %}
+									query={{search}}
+									{% endif %}&
+									page={{ parkings.previous_page_number }}">&laquo;</a></li>
 								{% else %}
 									<li class="disabled page-item"><span class="page-link">&laquo;</span></li>
 								{% endif %}
 								{% for i in page_range %}
-								{% if query.number == i %}
+								{% if parkings.number == i %}
 									<li class="active page-item"><span class="page-link">{{ i }} <span class="sr-only">(current)</span></span></li>
 								{% else %}
-									<li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+									<li class="page-item"><a class="page-link" href="
+									?{% if search %}
+									query={{search}}
+									{% endif %}&
+									page={{ i }}">{{ i }}</a></li>
 								{% endif %}
 								{% endfor %}
-								{% if query.has_next %}
-									<li class="page-item"><a  class="page-link" href="?page={{ query.next_page_number }}">&raquo;</a></li>
+								{% if parkings.has_next %}
+									<li class="page-item"><a  class="page-link" href="
+									?{% if search %}
+									query={{search}}
+									{% endif %}&
+									page={{ parkings.next_page_number }}">&raquo;</a></li>
 								{% else %}
 									<li class="disabled page-item"><span class="page-link" >&raquo;</span></li>
 								{% endif %}
@@ -186,7 +223,7 @@
 
 	<!-- Footer section -->
 	<footer class="footer-section">
-		<h2>2017 All rights reserved. Designed by <a href="https://colorlib.com" target="_blank">Colorlib</a></h2>
+		<h2><a href="{% url 'home' %}">SmartP</a></h2>
 	</footer>
 	<!-- Footer section end -->
 
@@ -290,20 +327,20 @@
 		  });
 		}
 
-		$(document).mouseup(function (e)
-                    {
-		  let container = $("#parking-detail"); // YOUR CONTAINER SELECTOR
-
-		  if (!container.is(e.target) // if the target of the click isn't the container...
-			  && container.has(e.target).length === 0) // ... nor a descendant of the container
-		  {
-			//container.hide();
-			container.animate({bottom: -1000}, -500);
-		    container.css("visibility", "hidden");
-			$("#content").css("opacity", 1);
-			$("#search").css("opacity", 1);
-		  }
-		});
+		// $(document).mouseup(function (e)
+        //             {
+		//   let container = $("#parking-detail"); // YOUR CONTAINER SELECTOR
+		//
+		//   if (!container.is(e.target) // if the target of the click isn't the container...
+		// 	  && container.has(e.target).length === 0) // ... nor a descendant of the container
+		//   {
+		// 	//container.hide();
+		// 	container.animate({bottom: -1000}, -500);
+		//     container.css("visibility", "hidden");
+		// 	$("#content").css("opacity", 1);
+		// 	$("#search").css("opacity", 1);
+		//   }
+		// });
 
         addLikeButton();
 		addDislikeBtn();

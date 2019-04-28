@@ -13,6 +13,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext
 from django.contrib.gis.geos import *
 from django.contrib.gis.measure import D
+from django.contrib.gis.db.models.functions import Distance
+import requests
+import json
+import sys
 
 
 def homepage(request):
@@ -23,16 +27,49 @@ def homepage(request):
     # if request.user.is_authenticated:
         # print(request.user.id)
 
+    res = []
     if query:
         results = results.filter(
             Q(town__name__icontains=query) |
             Q(address__icontains=query) |
             Q(name__icontains=query)
-            # | Q(town_country__name__icontains=query)
         ).order_by('actualparkedcars')
 
+        temp = []
+
+        for p in results:
+            if p.location is not None:
+                temp.extend(
+                    ParkingLot.objects.all().filter(
+                        location__distance_lte=(p.location, D(mi=1))
+                    ).annotate(
+                        distance=Distance("location", p.location)
+                    ).order_by('distance').select_related())
+
+        res.extend(results)
+        res.extend(temp)
+
+        results = []
+        for r in res:
+            if r not in results:
+                results.append(r)
+
+        if not results:
+            session = requests.Session()
+            response = session.get(
+                "https://nominatim.openstreetmap.org/search/" + request.GET.get("query") +
+                "?format=json&addressdetails=1&limit=1")
+            content = response.json()
+            if content:
+                points = Point(x=float(content[0]['lon']), y=float(content[0]['lat']), z=None, srid=4326)
+                print(point)
+
+                results = ParkingLot.objects.all().filter(
+                    location__distance_lte=(points, D(mi=1))
+                ).annotate(distance=Distance("location", points)).order_by('distance')
+
     page = request.GET.get('page', 1)
-    paginator = Paginator(results, 9)
+    paginator = Paginator(results, 12)
 
     favourite = FavouriteParkingLot.objects.filter(user_id=request.user.id)
 
@@ -49,7 +86,17 @@ def homepage(request):
     end_index = index + 5 if index <= max_index - 5 else max_index
     page_range = paginator.page_range[start_index:end_index]
 
-    return render(request, "home.html", {'query': parkings, 'favourite': favourite, 'page_range': page_range})
+    free = [parkings[x].capacity - parkings[x].actualparkedcars for x in range(0, len(parkings))]
+
+    context = {
+        'free': free,
+        'parkings': parkings,
+        'favourite': favourite,
+        'page_range': page_range,
+        "search": query,
+    }
+
+    return render(request, "home.html", context)
 
 
 def aboutpage(request):
@@ -180,7 +227,7 @@ def showFavourite(request):
             ).order_by('actualparkedcars')
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(result, 9)
+        paginator = Paginator(result, 12)
 
         try:
             parkings = paginator.page(page)
@@ -231,7 +278,8 @@ def location(request, longitude, latitude):
     point = Point(x=float(longitude), y=float(latitude), z=None, srid=4326)
     print(point)
 
-    results = ParkingLot.objects.filter(location__distance_lte=(point, D(mi=50))).select_related().order_by('location')
+    results = ParkingLot.objects.filter(location__distance_lte=(point, D(km=3))).\
+        annotate(distance=Distance("location", point)).order_by('distance')
 
     page = request.GET.get('page', 1)
     paginator = Paginator(results, 9)
