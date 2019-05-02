@@ -141,7 +141,7 @@ def loginpage(request):
 
         form = LoginForm()
 
-    context = {'form': form}
+    context = {'form': form, 'invalid': True}
     context.update(csrf(request))
     return render_to_response("registration/login.html", context, RequestContext(request))
 
@@ -275,28 +275,30 @@ def dislike(request, id):
 
 def location(request, longitude, latitude):
 
-    point = Point(x=float(longitude), y=float(latitude), z=None, srid=4326)
-    print(point)
+    if request.user.is_authenticated:
 
-    results = ParkingLot.objects.filter(location__distance_lte=(point, D(km=3))).\
-        annotate(distance=Distance("location", point)).order_by('distance')
+        points = Point(x=float(longitude), y=float(latitude), z=None, srid=4326)
+        print(point)
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(results, 9)
+        results = ParkingLot.objects.filter(location__distance_lte=(points, D(km=3))).\
+            annotate(distance=Distance("location", points)).order_by('distance')
 
-    favourite = FavouriteParkingLot.objects.filter(user_id=request.user.id)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(results, 9)
 
-    try:
-        parkings = paginator.page(page)
-    except PageNotAnInteger:
-        parkings = paginator.page(1)
-    except EmptyPage:
-        parkings = paginator.page(paginator.num_pages)
+        favourite = FavouriteParkingLot.objects.filter(user_id=request.user.id)
 
-    index = paginator.page_range.index(parkings.number)
-    max_index = len(paginator.page_range)
-    start_index = index - 5 if index >= 5 else 0
-    end_index = index + 5 if index <= max_index - 5 else max_index
-    page_range = paginator.page_range[start_index:end_index]
+        try:
+            parkings = paginator.page(page)
+        except PageNotAnInteger:
+            parkings = paginator.page(1)
+        except EmptyPage:
+            parkings = paginator.page(paginator.num_pages)
 
-    return render(request, "location.html", {'query': parkings, 'favourite': favourite, 'page_range': page_range})
+        index = paginator.page_range.index(parkings.number)
+        max_index = len(paginator.page_range)
+        start_index = index - 5 if index >= 5 else 0
+        end_index = index + 5 if index <= max_index - 5 else max_index
+        page_range = paginator.page_range[start_index:end_index]
+
+        return render(request, "location.html", {'query': parkings, 'favourite': favourite, 'page_range': page_range})

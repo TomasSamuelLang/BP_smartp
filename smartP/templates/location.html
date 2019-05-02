@@ -8,7 +8,6 @@
         {% endif %}
   <div class="row" style="margin-top: 20px">
 	  <iframe id= "mapsource" style="width: 100%; height: 400px" src=""></iframe>
-<script src="{% static 'js/OpenLayers.js' %}"></script>
   </div>
     <div class="row" style="margin-top: 20px">
 					{% for obj in query %}
@@ -20,9 +19,27 @@
                 				<img class="card-img-top imag" src="{% static obj.photo_set.all.first.photo %}" alt="Parking lot img" onclick="parkingDetail({{obj.id}});">
 							 {% endif %}
 							 <div class="card-body">
+                  				<table class="table table-borderless">
+                      				<thead>
+										<tr>
+											<th scope="col" style="padding: 0rem;">
+												{{obj.name}}
+											</th>
+											<td scope="row" style="padding: 0rem; text-align: right;">
+												{% if obj.actualparkedcars < obj.capacity %}
+												<span class="Green">Free {{obj.capacity|subtract:obj.actualparkedcars}}</span>
+												{% else %}
+												<span class="Red">Free {{obj.capacity|subtract:obj.actualparkedcars}}</span>
+												{% endif %}
+											</td>
+										</tr>
+									</thead>
+								 </table>
+
                   				<p class="card-text">
-									{{obj.name}}
-								 	<br>
+									<!--{{obj.name}}-->
+									<!--<span class="dot"></span>-->
+								 	<!--<br>-->
 									Address: {{obj.address}},	{{obj.town.name}}
 								</p>
                   				<div class="d-flex justify-content-between align-items-center">

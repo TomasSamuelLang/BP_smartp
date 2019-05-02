@@ -17,6 +17,6 @@ class LoginForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(), label="Type in password", max_length=100)
 
     class Meta:
-        fields = '__all__'
+        fields = ('username', 'password')
         model = User
 

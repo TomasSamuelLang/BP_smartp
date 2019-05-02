@@ -1,4 +1,5 @@
 {% load static %}
+{% load utilitytags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -146,11 +147,11 @@
 											<th scope="col" style="padding: 0rem;">
 												{{obj.name}}
 											</th>
-											<td scope="row" style="padding: 0rem;">
+											<td scope="row" style="padding: 0rem; text-align: right;">
 												{% if obj.actualparkedcars < obj.capacity %}
-												<span class="dotGreen"></span>
+												<span class="Green">Free {{obj.capacity|subtract:obj.actualparkedcars}}</span>
 												{% else %}
-												<span class="dotRed"></span>
+												<span class="Red">Free {{obj.capacity|subtract:obj.actualparkedcars}}</span>
 												{% endif %}
 											</td>
 										</tr>
@@ -162,6 +163,7 @@
 									<!--<span class="dot"></span>-->
 								 	<!--<br>-->
 									Address: {{obj.address}},	{{obj.town.name}}
+								</p>
                   				<div class="d-flex justify-content-between align-items-center">
                     				<div class="btn-group">
                       					<button type="button" class="btn btn-sm btn-outline-secondary2" onclick="parkingDetail({{obj.id}});">View details</button>

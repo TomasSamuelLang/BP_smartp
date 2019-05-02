@@ -99,7 +99,6 @@
 								</div>
 								<div class="col-auto">
 									<button class="site-btn mr20 ml20" type="submit">Search</button>
-									<!--<button class="site-btn mr20 ml20" id="location" onclick="getLocation()">Near me</button>-->
 									<a href="#" class="site-btn mr20 ml20" id="location" onclick="getLocation()">Near me</a>
 								</div>
 							</div>
@@ -134,11 +133,11 @@
 											<th scope="col" style="padding: 0rem;">
 												{{obj.name}}
 											</th>
-											<td scope="row" style="padding: 0rem;">
+											<td scope="row" style="padding: 0rem; text-align: right;">
 												{% if obj.actualparkedcars < obj.capacity %}
-												<span class="dotGreen"></span>
+												<span class="Green">Free {{obj.capacity|subtract:obj.actualparkedcars}}</span>
 												{% else %}
-												<span class="dotRed"></span>
+												<span class="Red">Free {{obj.capacity|subtract:obj.actualparkedcars}}</span>
 												{% endif %}
 											</td>
 										</tr>
